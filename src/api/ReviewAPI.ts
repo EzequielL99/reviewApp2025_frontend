@@ -8,8 +8,9 @@ export async function createReview(formData: ReviewFormData) {
         "Content-Type": "multipart/form-data",
       },
     });
-    console.log(data);
+    return data;
   } catch (error) {
-    console.error(error);
+    return error;
   }
+
 }
