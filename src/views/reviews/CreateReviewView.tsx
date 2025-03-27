@@ -1,18 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import ReviewForm from "@/components/reviews/ReviewForm";
 import { ReviewFormData } from "@/types/index";
 import { createReview } from "@/api/ReviewAPI";
 
 export default function CreateReviewView() {
-
   const navigate = useNavigate();
 
   const initialValues: ReviewFormData = {
     fileToReview: null,
     reviewName: "",
-    description: ""
+    description: "",
   };
 
   const {
@@ -23,24 +22,18 @@ export default function CreateReviewView() {
   } = useForm<ReviewFormData>({ defaultValues: initialValues });
 
   const handleForm = async (formData: ReviewFormData) => {
-    await toast.promise(createReview(formData),
-      {
-        pending: 'Creando tu review',
-        success: {
-          render({ data }) {
-            return data;
-          }
-        },
-        error: {
-          render(response){
-            console.log(response);
-            return 'Error creando la review';
-          }
-        }
-      }
-    );
+    const toastId = toast("Creando tu review", { autoClose: false, isLoading: true });
 
-    navigate('/');
+    const response = await createReview(formData);
+
+    toast.update(toastId, {
+      type: response.indexOf("ERROR:") !== -1 ? "error" : "success",
+      isLoading: false,
+      render: response,
+      autoClose: 5000,
+    });
+
+    navigate("/");
   };
 
   return (
