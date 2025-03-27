@@ -12,10 +12,12 @@ export async function createReview(formData: ReviewFormData) {
 
     return data;
   } catch (error) {
-    if (isAxiosError(error)) {
-      console.log(error.response?.data.errors);
+    if (isAxiosError(error) && error.response) {
+      if (error.response.data.errors) {
+        throw new Error(error.response.data.errors[0].msg);
+      } else if (error.response.data.error) {
+        throw new Error(error.response.data.error);
+      }
     }
-    console.error(error);
-    return "ERROR: Por favor, vuelve a intentarlo.";
   }
 }

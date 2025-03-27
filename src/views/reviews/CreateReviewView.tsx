@@ -1,11 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
+import { toast, Id } from "react-toastify";
 import ReviewForm from "@/components/reviews/ReviewForm";
 import { ReviewFormData } from "@/types/index";
 import { createReview } from "@/api/ReviewAPI";
+import { useMutation } from "@tanstack/react-query";
+import { useRef } from "react";
 
 export default function CreateReviewView() {
+  const toastId = useRef('' as Id);
   const navigate = useNavigate();
 
   const initialValues: ReviewFormData = {
@@ -21,19 +24,34 @@ export default function CreateReviewView() {
     formState: { errors },
   } = useForm<ReviewFormData>({ defaultValues: initialValues });
 
-  const handleForm = async (formData: ReviewFormData) => {
-    const toastId = toast("Creando tu review", { autoClose: false, isLoading: true });
+  const {mutate} = useMutation({
+    mutationFn: createReview,
+    onError: (error) => {
+      toast.update(toastId.current, {
+        autoClose: 5000,
+        isLoading: false,
+        render: error.message,
+        type: 'error',
+      })
+    },
+    onSuccess: (data) => {
+      toast.update(toastId.current, {
+        autoClose: 5000,
+        isLoading: false,
+        render: data,
+        type: 'success',
+      })
+      navigate('/');
+    }
+  });
 
-    const response = await createReview(formData);
-
-    toast.update(toastId, {
-      type: response.indexOf("ERROR:") !== -1 ? "error" : "success",
-      isLoading: false,
-      render: response,
-      autoClose: 5000,
+  const handleForm = (formData: ReviewFormData) => {
+    toastId.current = toast('Creando tu review', {
+      autoClose: false,
+      isLoading: true
     });
 
-    navigate("/");
+    mutate(formData);
   };
 
   return (
