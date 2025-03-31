@@ -27,6 +27,8 @@ export async function getReviews() {
     const { data } = await api("/reviews");
 
     const response = dashboardReviewSchema.safeParse(data);
+
+    console.log(response);
     if (response.success) {
       return response.data;
     }
@@ -58,6 +60,17 @@ export async function updateReview({formData, reviewId}: UpdateReviewAPIType) {
   try {
     const { data } = await api.put<string>(`/reviews/${reviewId}`, formData);
 
+    return data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error);
+    }
+  }
+}
+
+export async function deleteReview(id: Review['_id']) {
+  try {
+    const { data } = await api.delete<string>(`/reviews/${id}`);
     return data;
   } catch (error) {
     if (isAxiosError(error) && error.response) {

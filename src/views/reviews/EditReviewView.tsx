@@ -7,7 +7,7 @@ export default function EditReviewView() {
   const params = useParams();
   const reviewId = params.reviewId!;
 
-  const { data, isLoading, error, isError } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["editReview", reviewId],
     queryFn: () => getReviewById(reviewId),
     retry: false,

@@ -9,26 +9,44 @@ import {
 } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { Link } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteReview } from "@/api/ReviewAPI";
+import { toast } from "react-toastify";
 
 type ItemGridProps = {
   reviews: DashboardReview[];
 };
 
 export default function ReviewGrid({ reviews }: ItemGridProps) {
-  const checkStatus = (status : string) => {
+  const queryClient = useQueryClient();
+  const { mutate } = useMutation({
+    mutationFn: deleteReview,
+    onError: (error) => {
+      console.error(error);
+      toast.error("Se produjo un error borrando la revisión.");
+    },
+    onSuccess: (data) => {
+      toast.success(data);
+      queryClient.invalidateQueries({
+        queryKey: ["reviews"],
+      });
+    },
+  });
+
+  const checkStatus = (status: string, isText = false) => {
     switch (status) {
       case "hasIssues":
-        return "bg-red-400";
+        return isText ? "text-red-400" : "bg-red-400";
       case "approved":
-        return "bg-emerald-400";
+        return isText ? "text-emerald-400" : "bg-emerald-400";
       case "underReview":
       default:
-        return "bg-ambar-400";
+        return isText ? "text-ambar-400" : "bg-ambar-400";
     }
   };
 
   return (
-    <ul role="list" className="grid grid-cols-4 gap-4">
+    <ul role="list" className="">
       {reviews.map((review) => (
         <li
           key={review._id}
@@ -42,10 +60,13 @@ export default function ReviewGrid({ reviews }: ItemGridProps) {
               title={review.status}
             ></span>
             <h2>
-              {review.reviewName.length > 15
-                ? review.reviewName.substring(0, 10) + "..."
+              {review.reviewName.length > 20
+                ? review.reviewName.substring(0, 20) + "..."
                 : review.reviewName}
             </h2>
+          </div>
+          <div className={`font-bold ${checkStatus(review.status, true)}`}>
+            {review.issues.length} problemas
           </div>
           <div className="card-menu self-center">
             <Menu as="div" className="relative flex-none">
@@ -83,7 +104,7 @@ export default function ReviewGrid({ reviews }: ItemGridProps) {
                     <button
                       type="button"
                       className="block px-3 py-1 text-sm leading-6 text-red-500 cursor-pointer"
-                      onClick={() => {}}
+                      onClick={() => mutate(review._id)}
                     >
                       Eliminar Revisión
                     </button>

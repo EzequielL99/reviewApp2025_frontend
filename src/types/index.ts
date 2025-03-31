@@ -16,7 +16,8 @@ export const dashboardReviewSchema = z.array(
         description: true,
     })
     .extend({
-        status: z.string()
+        status: z.string(),
+        issues: z.array(z.string())
     })
 )
 

@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { Review, ReviewFormData } from "@/types/index";
 import ErrorMessage from "../ErrorMessage";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateReview } from "@/api/ReviewAPI";
 import { toast } from "react-toastify";
 
@@ -23,12 +23,21 @@ export default function EditReviewForm({
     fileToReview: null, // Para satisfacer el Type, pero para la edición no tiene utilidad
   };
 
+  const queryClient = useQueryClient();
+
   const { mutate } = useMutation({
     mutationFn: updateReview,
     onError: (error) => {
       toast.error(error.message);
     },
     onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["reviews"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["editReview", reviewId],
+      });
+      
       toast.success(data);
       navigate("/");
     },
