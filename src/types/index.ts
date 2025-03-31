@@ -6,10 +6,23 @@ export const reviewSchema = z.object({
     reviewName: z.string(),
     description: z.string(),
     fileToReview: z.string(),
-
 })
 
+export const dashboardReviewSchema = z.array(
+    reviewSchema
+    .pick({
+        _id: true,
+        reviewName: true,
+        description: true,
+    })
+    .extend({
+        status: z.string()
+    })
+)
+
 export type Review = z.infer<typeof reviewSchema>
+
+export type DashboardReview = z.infer<typeof dashboardReviewSchema.element>
 
 export type ReviewFormData = Pick<Review, 'reviewName' | 'description'> & {
     fileToReview: File | null
