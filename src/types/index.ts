@@ -23,7 +23,7 @@ interface PageWithoutDescriptionIssue extends BaseIssue {
 }
 
 interface HardcodedData extends BaseIssue {
-    category: 'PageWithoutDescription'
+    category: 'HardcodedData'
     attr: {
         stageType: string;
         stageName: string;

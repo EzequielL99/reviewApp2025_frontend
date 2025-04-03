@@ -5,9 +5,17 @@ type IssuesListProps = {
     issues: Issue[]
 }
 
+type CategoryFieldSchema =
+    {
+        key: string;
+        label: string;
+        isAttr: boolean;
+    }
+
+
 const categorySchemas = {
     NamingConvention: [
-        { key: 'severity', label: 'Severidad', isAttr: false  },
+        { key: 'severity', label: 'Severidad', isAttr: false },
         { key: 'process', label: 'Proceso', isAttr: false },
         { key: 'page', label: 'Pagina', isAttr: false },
         { key: 'stageName', label: 'Nombre de Etapa', isAttr: true },
@@ -33,6 +41,16 @@ const categorySchemas = {
 export default function IssuesList({ issues }: IssuesListProps) {
     const categories = [...new Set(issues.map(issue => issue.category))];
 
+    const renderIssueData = (issue: Issue, field: CategoryFieldSchema) => {
+        if (field.isAttr && issue.category === 'HardcodedData') {
+            return <td className="px-2" key={field.key}>{issue['attr'][field.key as keyof typeof issue.attr]}</td>
+        } else if (field.isAttr && issue.category === 'NamingConvention') {
+            return <td className="px-2" key={field.key}>{issue['attr'][field.key as keyof typeof issue.attr]}</td>
+        } else if (!field.isAttr) {
+            return <td className="px-2" key={field.key}>{issue[field.key as keyof typeof issue]}</td>
+        }
+    }
+
     return (
         <TabGroup>
             <TabList className='flex space-x-4'>
@@ -49,12 +67,12 @@ export default function IssuesList({ issues }: IssuesListProps) {
                     const filteredIssues = issues.filter(issue => issue.category === category);
 
                     return (
-                        <TabPanel key={category}>
+                        <TabPanel key={category} className='py-5'>
                             <table>
                                 <thead>
                                     <tr>
                                         {schema.map(field => (
-                                            <th key={field.key}>
+                                            <th key={field.key} className="bg-gray-300 text-gray-500 font-normal py-2">
                                                 {field.label}
                                             </th>
                                         ))}
@@ -64,13 +82,8 @@ export default function IssuesList({ issues }: IssuesListProps) {
                                     {
                                         filteredIssues
                                             .map(issue => (
-                                                <tr key={issue._id}>
-                                                    {schema.map(field => (
-                                                        <td key={field.key}>
-                                                            {field.isAttr ? issue['attr']![field.key as keyof Issue['attr']] : issue[field.key as keyof Issue]}
-                                                        </td>
-                                                    ))}
-                                                    <p key={issue._id}>{issue.process}</p>
+                                                <tr key={issue._id} className="text-center">
+                                                    {schema.map(field => renderIssueData(issue, field))}
                                                 </tr>
                                             ))
                                     }
