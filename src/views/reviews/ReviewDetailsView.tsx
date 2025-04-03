@@ -1,4 +1,5 @@
 import { getReviewById } from "@/api/ReviewAPI";
+import IssuesList from "@/components/issues/IssuesList";
 import { useQuery } from "@tanstack/react-query";
 import { Navigate, useParams } from "react-router-dom";
 
@@ -18,6 +19,11 @@ export default function ReviewDetailsView() {
   if(data) return (
     <>
       <h1 className="text-5xl font-black">{data.reviewName}</h1>
+      <p className="text-2xl font-light text-gray-500 mt-5">{data.description}</p>
+
+      <IssuesList 
+        issues={data.issues}
+      />
     </>
   )
 }
