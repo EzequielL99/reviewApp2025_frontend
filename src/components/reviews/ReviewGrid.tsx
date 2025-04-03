@@ -50,8 +50,9 @@ export default function ReviewGrid({ reviews }: ItemGridProps) {
       {reviews.map((review) => (
         <li
           key={review._id}
-          className="flex justify-between gap-2 rounded-md bg-white px-10 py-8 shadow-lg cursor-pointer"
+          className="rounded-md bg-white px-10 py-8 shadow-lg cursor-pointer"
         >
+          <Link to={`reviews/${review._id}`} className="flex justify-between gap-2">
           <div className="title flex items-center gap-3">
             <span
               className={`w-4 h-4 ${checkStatus(
@@ -86,7 +87,7 @@ export default function ReviewGrid({ reviews }: ItemGridProps) {
                 <MenuItems className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white py-2 px-3 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
                   <MenuItem>
                     <Link
-                      to={``}
+                      to={`/reviews/${review._id}`}
                       className="block px-3 py-1 text-sm leading-6 text-gray-900"
                     >
                       Ver Revisión
@@ -113,6 +114,7 @@ export default function ReviewGrid({ reviews }: ItemGridProps) {
               </Transition>
             </Menu>
           </div>
+          </Link>
         </li>
       ))}
     </ul>
