@@ -1,4 +1,9 @@
+import { updateIssue } from "@/api/IssueAPI";
 import { CategoryFieldSchema, CategorySchema, Issue } from "@/types/index";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 type IssueListItemProps = {
   issue: Issue;
@@ -17,7 +22,30 @@ const severityColorReference = (severity: Issue["severity"]) => {
 };
 
 export default function IssueTableRow({ issue, schema }: IssueListItemProps) {
+  const params = useParams();
+  const reviewId = params.reviewId!;
+
+  const queryClient = useQueryClient();
+
+  const [isChecked, setIsChecked] = useState(issue.solved);
   const cssClasses = "p-2";
+
+  const { mutate } = useMutation({
+    mutationFn: updateIssue,
+    onError: (error) => {
+      console.error(error.message);
+      toast.error("Error al actualizar el problema.", {
+        autoClose: 3000,
+      });
+    },
+    onSuccess: (data) => {
+      setIsChecked(!isChecked);
+      toast.success(data, {
+        autoClose: 3000,
+      });
+      queryClient.invalidateQueries({ queryKey: ["review", reviewId] });
+    },
+  });
 
   const renderAttributeField = (issue: Issue, field: CategoryFieldSchema) => {
     switch (issue.category) {
@@ -36,17 +64,56 @@ export default function IssueTableRow({ issue, schema }: IssueListItemProps) {
     }
   };
 
+  const handleChange = () => {
+    const data = {
+      issueId: issue._id,
+      reviewId,
+    };
+    mutate(data);
+  };
+
   const renderStandardField = (issue: Issue, field: CategoryFieldSchema) => {
     switch (field.key) {
       case "solved":
         return (
           <td className={`${cssClasses} text-center`} key={field.key}>
-            <input
-              type="checkbox"
-              className="cursor-pointer"
-              id="chkBoxSolved"
-              checked={issue.solved}
-            />
+            <label
+              htmlFor={`chkBoxSolved-${issue._id}`}
+              className="flex items-center justify-center cursor-pointer select-none"
+            >
+              <input
+                type="checkbox"
+                className="sr-only"
+                onChange={handleChange}
+                id={`chkBoxSolved-${issue._id}`}
+                checked={isChecked}
+              />
+              <span
+                className={`w-5 h-5 border-2 rounded-full cursor-pointer flex items-center justify-center
+                  ${
+                    isChecked
+                      ? "bg-red-600 border-red-600"
+                      : "bg-white border-gray-400"
+                  }`}
+              >
+                {isChecked && (
+                  <svg
+                    className="w-3 h-3 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                )}
+              </span>
+            </label>
           </td>
         );
       case "severity":
@@ -70,7 +137,7 @@ export default function IssueTableRow({ issue, schema }: IssueListItemProps) {
   };
 
   return (
-    <tr id={issue._id} className="hover:bg-red-100">
+    <tr className="hover:bg-red-100">
       {schema.map((field) =>
         field.isAttr
           ? renderAttributeField(issue, field)

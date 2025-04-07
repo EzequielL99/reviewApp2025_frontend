@@ -46,7 +46,7 @@ export default function ReviewGrid({ reviews }: ItemGridProps) {
   };
 
   return (
-    <ul role="list" className="">
+    <ul role="list" className="space-y-8">
       {reviews.map((review) => (
         <li
           key={review._id}

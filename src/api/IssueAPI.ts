@@ -7,11 +7,11 @@ type IssueAPI = {
     reviewId: Review['_id']
 }
 
-export async function updateTask({issueId, reviewId} : Pick<IssueAPI, 'issueId' | 'reviewId'>){
+export async function updateIssue({issueId, reviewId} : Pick<IssueAPI, 'issueId' | 'reviewId'>){
     try{
-        const {data} = await api.patch(`/${reviewId}/issues/${issueId}`)
+        const {data} = await api.patch<string>(`/reviews/${reviewId}/issues/${issueId}`)
 
-        console.log(data);
+        return data;
     }catch(error){
         if(isAxiosError(error) && error.response){
             throw new Error(error.response.data.error);

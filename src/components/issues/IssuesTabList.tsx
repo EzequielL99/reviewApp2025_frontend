@@ -29,7 +29,7 @@ export default function IssuesTabList({ issues }: IssuesListProps) {
     <TabGroup>
       <TabList className="flex space-x-4">
         {Object.keys(groupedIssues).map((category) => (
-          <Tab key={category} className="p-2 border-b-2 hover:bg-gray-300 data-[selected]:bg-red-600 data-[selected]:text-white outline-0 transition-colors">
+          <Tab key={category} className="p-2 border-b-2 cursor-pointer hover:bg-gray-300 data-[selected]:bg-red-600 data-[selected]:text-white outline-0 transition-colors">
             {category}
           </Tab>
         ))}
@@ -39,7 +39,11 @@ export default function IssuesTabList({ issues }: IssuesListProps) {
         {Object.entries(groupedIssues).map(([category, issues]) => {
           return (
             <TabPanel key={category} className="py-5">
-              <IssuesTable category={category} issues={issues} />
+              {issues.length === 0 ? (
+                <p>No se encontraron problemas</p>
+              ) : (
+                <IssuesTable category={category} issues={issues} />
+              )}
             </TabPanel>
           );
         })}
